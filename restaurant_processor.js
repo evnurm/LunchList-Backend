@@ -2,6 +2,7 @@
  * FETCHES DATA FROM RESTAURANT APIS AND PROCESSES THE DATA INTO UNIFORM FORMAT.
  */
 
+const jsonProcessor = require('./json_processor.js');
 const request = require('request');
 const fs = require('fs');
 
@@ -9,8 +10,8 @@ const fs = require('fs');
 function getMonday(delimiter) {
   const d = new Date();
   const year = d.getFullYear().toString();
-  let month = (d.getMonth() + 1).toString().padStart(2, "0");
-  let day = (d.getDate() - (d.getDay() +6) % 7).toString().padStart(2, "0");
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const day = (d.getDate() - (d.getDay() + 6) % 7).toString().padStart(2, "0");
 
   return year + delimiter + month + delimiter + day;
 }
@@ -31,7 +32,7 @@ function getData(company, code, callback) {
       if(err) { 
         console.log(err);
       } else {
-        callback(JSON.parse(body));
+        jsonProcessor.createRestaurant(company, body, callback);
       }
     });
 }
