@@ -16,7 +16,7 @@ function createRestaurant(company, json, callback) {
 }
 
 // Processes JSON in the Fazer format.
-function parseFazerJSON(obj, callback) {
+function parseFazerJSON(obj) {
   const result = {};
   
   result.title = obj["RestaurantName"];
@@ -40,12 +40,11 @@ function parseFazerJSON(obj, callback) {
     });
     idx++;
   });
-  
-  callback(result);
+  return result;
 }
 
 // Processes JSON in the Sodexo format.
-function parseSodexoJSON(obj, callback) {
+function parseSodexoJSON(obj) {
   const result = {};
   result.title = obj.meta.ref_title;
   
@@ -56,9 +55,16 @@ function parseSodexoJSON(obj, callback) {
     result[day] = [];
     alternatives.forEach(alternative => result[day].push(alternative.title_fi));
   }
-  callback(result);
+  
+  // Adds empty arrays for the weekend.
+  result["saturday"] = [];
+  result["sunday"] = [];
+  
+  return result;
 }
 
 module.exports = {
-  createRestaurant
+  createRestaurant,
+  parseFazerJSON,
+  parseSodexoJSON
 };

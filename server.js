@@ -5,7 +5,10 @@ const processor = require('./restaurant_processor.js');
 
 
 
-app.get('/', (req, res) => processor.getData("FAZER", "0190", (data) => res.json(data)));
+app.get('/', (req, res) => {
+    processor.fetchAllRestaurants(result => res.json(result)); // fetch data...
+    // res.json({"title": "Hello, World!"});
+});
 
 // Listen to connections on port 3000.
 app.listen(port, () =>  console.log('[LUNCH LIST BACKEND]: Running on port ' + port + "."));

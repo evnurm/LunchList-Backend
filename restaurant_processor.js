@@ -3,7 +3,7 @@
  */
 
 const jsonProcessor = require('./json_processor.js');
-const request = require('request');
+const axios = require('axios');
 const fs = require('fs');
 
 // Returns the date of Monday on the current week as YYYY-MM-dd.
@@ -17,8 +17,30 @@ function getMonday(delimiter) {
 }
 
 
-// Fetches the JSON data for the restaurant with given parameters.
-function getData(company, code, callback) {
+// Fetches data for all restaurants.
+function fetchAllRestaurants(callback) {
+  let fazer = ["0190", "3101", "0199"];
+  let sodexo = ["142", "26521", "13198"];
+
+  fazer = fazer.map(code =>  getData("FAZER", code));
+  sodexo = sodexo.map(code => getData("SODEXO", code));
+
+  let restaurants;
+  const addrs = fazer.concat(sodexo);
+  
+  axios.all(addrs).then(results => {
+
+    let arr = results.slice(0, fazer.length).map(x => jsonProcessor.parseFazerJSON(x.data));
+    arr.push(results.slice(fazer.length, results.length).map(x => jsonProcessor.parseSodexoJSON(x.data)));
+    
+    callback(arr);
+  
+  }).catch(ex => console.log("[ERROR]: " + ex)
+  );
+
+}
+
+function getData(company, code) {
 
   let addr;
   
@@ -28,13 +50,8 @@ function getData(company, code, callback) {
     addr = `https://www.sodexo.fi/ruokalistat/output/weekly_json/${code}/${getMonday("/")}/fi`;
   }
 
-  request(addr, (err, res, body) => {
-      if(err) { 
-        console.log(err);
-      } else {
-        jsonProcessor.createRestaurant(company, body, callback);
-      }
-    });
+  return axios.get(addr);
+
 }
 
 // Updates the stored response.
@@ -45,6 +62,6 @@ function updateResponses(data) {
 
 // EXPORTS
 module.exports = {
-  getData,
+  fetchAllRestaurants,
   updateResponses
 };
