@@ -31,7 +31,7 @@ function fetchAllRestaurants(callback) {
   axios.all(addrs).then(results => {
 
     let arr = results.slice(0, fazer.length).map(x => jsonProcessor.parseFazerJSON(x.data));
-    arr.push(results.slice(fazer.length, results.length).map(x => jsonProcessor.parseSodexoJSON(x.data)));
+    arr.push(...results.slice(fazer.length, results.length).map(x => jsonProcessor.parseSodexoJSON(x.data)));
     
     callback(arr);
   
