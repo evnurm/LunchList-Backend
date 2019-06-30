@@ -21,18 +21,20 @@ function getMonday(delimiter) {
 function fetchAllRestaurants(callback) {
   let fazer = ["0190", "3101", "0199"];
   let sodexo = ["142", "26521", "13198"];
+  let amica = ["3238"];
 
   fazer = fazer.map(code =>  getData("FAZER", code));
   sodexo = sodexo.map(code => getData("SODEXO", code));
+  amica = amica.map(code => getData("AMICA", code));
 
   let restaurants;
-  const addrs = fazer.concat(sodexo);
+  const addrs = fazer.concat(sodexo).concat(amica);
   
   axios.all(addrs).then(results => {
 
     let arr = results.slice(0, fazer.length).map(x => jsonProcessor.parseFazerJSON(x.data));
-    arr.push(...results.slice(fazer.length, results.length).map(x => jsonProcessor.parseSodexoJSON(x.data)));
-    
+    arr.push(...results.slice(fazer.length, results.length - sodexo.length).map(x => jsonProcessor.parseSodexoJSON(x.data)));
+    arr.push(...results.slice(fazer.length + sodexo.length, results.length).map(x => jsonProcessor.parseFazerJSON(x.data)));
     callback(arr);
   
   }).catch(ex => console.log("[ERROR]: " + ex)
@@ -44,10 +46,12 @@ function getData(company, code) {
 
   let addr;
   
-  if (company == "FAZER") {
+  if (company === "FAZER") {
     addr = `https://www.fazerfoodco.fi/modules/json/json/Index?costNumber=${code}&language=fi&firstday=${getMonday("-")}`;
-  } else if (company == "SODEXO") {
+  } else if (company === "SODEXO") {
     addr = `https://www.sodexo.fi/ruokalistat/output/weekly_json/${code}/${getMonday("/")}/fi`;
+  } else if (company === "AMICA") {
+    addr = `https://www.amica.fi/modules/json/json/Index?costNumber=${code}&language=fi&firstday=${getMonday("-")}`;
   }
 
   return axios.get(addr);

@@ -7,9 +7,9 @@
 function createRestaurant(company, json, callback) {
   const jsonObject = JSON.parse(json);
   
-  if (company == "FAZER") {
+  if (company === "FAZER" || company === "AMICA") {
     parseFazerJSON(jsonObject, callback);
-  } else if (company == "SODEXO") {
+  } else if (company === "SODEXO") {
     parseSodexoJSON(jsonObject, callback);
   }
 
@@ -18,7 +18,6 @@ function createRestaurant(company, json, callback) {
 // Processes JSON in the Fazer format.
 function parseFazerJSON(obj) {
   const result = {};
-  
   result.title = obj["RestaurantName"];
   const menusForDays = obj["MenusForDays"];
   
